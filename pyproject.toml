@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "robotic-researcher"
+version = "0.1.0"
+description = "Package for lurking for information about scientists"
+authors = ["Timoteo <tim-ef@yandex.com>"]
+readme = "README.md"
+packages = [{include = "robotic_researcher"}]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+rpaframework = "^23.0.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.3.0"
+
+[tool.black]
+line-length = 120
+target-version = ['py37', 'py38']
+include = '\.pyi?$'
+
+[tool.poetry.scripts]
+robotic_researcher = "robotic_researcher.main:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

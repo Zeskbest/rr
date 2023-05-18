@@ -1,4 +1,4 @@
-from robotics import Robot
+from .robotics import Robot
 
 SCIENTISTS = ["Albert Einstein", "Isaac Newton", "Marie Curie", "Charles Darwin"]
 
