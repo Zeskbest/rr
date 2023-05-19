@@ -70,6 +70,7 @@ class Robot:
                     raise click.BadParameter(f"x is not a digit")
                 if not 0 <= int(x) <= len(links):
                     raise click.BadParameter(f"should be between [1, {len(links)}]")
+                return int(x)
 
             choice = "\n".join([f"{num + 1}) {link.text}" for num, link in enumerate(links)] + ["0) :exit"])
             num = click.prompt(f"Which of the following do you choose?\n{choice}", type=int, value_proc=validator)
