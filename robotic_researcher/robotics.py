@@ -24,7 +24,6 @@ class Robot:
         if not br.get_browser_ids():
             br.open_available_browser()
         br.go_to(webpage)
-        pass
 
     def assert_page_correctness(self, scientist: str):
         if br.does_page_contain("Wikipedia does not have an article with this exact name."):
@@ -83,6 +82,8 @@ class Robot:
 
         run_search()
         br.driver.implicitly_wait(3)  # TODO
+        if "index.php" not in br.driver.current_url:  # seems, we are no longer on the search page
+            return
         choose_again = choose_link()
         if choose_again:
             br.driver.implicitly_wait(3)  # TODO
