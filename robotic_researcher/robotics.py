@@ -85,6 +85,7 @@ class Robot:
         br.driver.implicitly_wait(3)  # TODO
         choose_again = choose_link()
         if choose_again:
+            br.driver.implicitly_wait(3)  # TODO
             choose_link()
 
     def scientist_info(self, scientist: str):
