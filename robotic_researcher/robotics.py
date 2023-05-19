@@ -146,6 +146,7 @@ class Robot:
             text = get_first_paragraph()
             click.prompt("To read article press Enter", default="ok", show_default=False)
             click.echo_via_pager(text)
+            click.prompt("To see the awesome traceback press Enter", default="ok", show_default=False)
 
         find_page()
         print_data()
