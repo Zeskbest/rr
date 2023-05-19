@@ -1,3 +1,8 @@
+What is it
+===
+
+A selenium-based command-line Wikipedia search engine.
+
 How to use:
 ===
 
