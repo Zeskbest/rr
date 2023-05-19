@@ -1,6 +1,6 @@
 import atexit
 import datetime
-from typing import List, Callable, Optional
+from typing import List, Callable, Optional, Iterable
 
 import click
 from RPA.Browser.Selenium import Selenium
@@ -124,10 +124,13 @@ class Robot:
                     raise RuntimeError("Impossible")
                 return age
 
-            def get_first_paragraph() -> str:
+            def get_first_paragraph() -> Iterable[str]:
                 path = "//div[@class='mw-parser-output']/h2[1]/preceding-sibling::p"
                 first_ps = br.driver.find_elements(By.XPATH, path)
-                return "Article" + "\n\n".join((p.text for p in first_ps))
+                yield "Article:"
+                for p in first_ps:
+                    yield p.text
+                    yield "\n\n"
 
             bdate = get_bdate()
             ddate = get_ddate()
