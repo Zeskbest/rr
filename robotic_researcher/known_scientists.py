@@ -1,8 +1,9 @@
+"""
+Known scientists' processing.
+"""
 from typing import Optional, Union
 
 import click
-
-from .robotics import CannotFind
 
 SCIENTISTS = ["Albert Einstein", "Isaac Newton", "Marie Curie", "Charles Darwin"]
 _SCIENTISTS_AS_PROMPT = "\n".join((f"{num + 1}) {name}" for num, name in enumerate(SCIENTISTS)))
@@ -11,6 +12,15 @@ FLAG = "choose"
 
 
 def validate_scientist_number(value: Union[str, int]) -> Optional[int]:
+    """
+    Validate the `number`.
+    Args:
+        value: input value
+    Returns:
+        valid value
+    Raises:
+        click.BadParameter otherwise
+    """
     try:
         value = int(value)
     except ValueError:
@@ -22,13 +32,32 @@ def validate_scientist_number(value: Union[str, int]) -> Optional[int]:
     raise click.BadParameter(f"Number must be in range {[min_, max_]}.")
 
 
-def validate_scientist_arg(ctx, param, value: int) -> Optional[int]:
+def validate_scientist_arg(ctx, param, value: Optional[int]) -> Optional[int]:
+    """
+    Validate the `number` arg.
+    Args:
+        ctx:
+        param:
+        value: inout value
+    Returns:
+        value
+    Raises:
+        click.BadParameter otherwise
+    """
     if value is None:
         return None
     return validate_scientist_number(value)
 
 
-def cmd(scientist: str, number: Optional[int]):
+def getdefault(scientist: str, number: Optional[int]):
+    """
+    Set default scientist if needed.
+    Args:
+        scientist: scientist arg
+        number: number arg
+    Returns:
+        usable scientist arg
+    """
     if scientist == FLAG:
         if number is None:
             number = click.prompt(
