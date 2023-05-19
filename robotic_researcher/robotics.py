@@ -62,7 +62,7 @@ class Robot:
         def choose_link() -> bool:
             wiki_advice = br.driver.find_elements(By.XPATH, '//*[@id="mw-search-DYM-suggestion"]')
             search_results = br.driver.find_elements(By.XPATH,
-                                                     '//*[@id="mw-content-text"]/div[4]/div[2]/ul/li/table/tbody/tr/td[2]/div[1]/a')
+                                                     '//*[@id="mw-content-text"]/div/div[2]/ul/li/table/tbody/tr/td[2]/div[1]/a')
             links = wiki_advice + search_results
 
             def validator(x: str):
