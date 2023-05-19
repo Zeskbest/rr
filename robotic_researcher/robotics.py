@@ -59,7 +59,7 @@ class Robot:
             search_field.send_keys(*scientist_name)
             search_field.submit()
 
-        def choose_link():
+        def choose_link() -> bool:
             wiki_advice = br.driver.find_elements(By.XPATH, '//*[@id="mw-search-DYM-suggestion"]')
             search_results = br.driver.find_elements(By.XPATH,
                                                      '//*[@id="mw-content-text"]/div[4]/div[2]/ul/li/table/tbody/tr/td[2]/div[1]/a')
@@ -77,11 +77,15 @@ class Robot:
             if num == 0:
                 raise CannotFind(scientist_name)
 
+            rechoose = len(wiki_advice) and num == 1
             links[num - 1].click()
+            return rechoose
 
         run_search()
         br.driver.implicitly_wait(3)  # TODO
-        choose_link()
+        choose_again = choose_link()
+        if choose_again:
+            choose_link()
 
     def scientist_info(self, scientist: str):
         def find_page():
