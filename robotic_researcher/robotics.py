@@ -84,7 +84,8 @@ class Robot:
 
     def scientist_info(self, scientist: str):
         def find_page():
-            ways: List[Callable[[str], None]] = [self.simple_way, self.difficult_way, self.very_difficult_way]
+            # ways: List[Callable[[str], None]] = [self.simple_way, self.difficult_way, self.very_difficult_way]
+            ways: List[Callable[[str], None]] = [self.simple_way, self.very_difficult_way]  # google shows capcha
             for way in ways:
                 try:
                     way(scientist)
