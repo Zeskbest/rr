@@ -1,4 +1,5 @@
 import datetime
+import time
 from typing import List, Callable, Optional, Iterable
 
 import click
@@ -7,6 +8,7 @@ from selenium.webdriver.common.by import By
 
 br = Selenium()
 
+SLEEP_TIMEOUT = 5
 
 class WayFailed(Exception):
     pass
@@ -54,7 +56,10 @@ class Robot:
         def run_search():
             search_field = br.driver.find_element(By.XPATH, '//*[@id="searchInput"]')
             search_field.send_keys(*scientist_name)
+            url_old = br.driver.current_url
             search_field.submit()
+            while url_old == br.driver.current_url:
+                br.driver.implicitly_wait(0.1)
 
         def choose_link() -> bool:
             wiki_advice = br.driver.find_elements(By.XPATH, '//*[@id="mw-search-DYM-suggestion"]')
@@ -81,12 +86,15 @@ class Robot:
             return rechoose
 
         run_search()
-        br.driver.implicitly_wait(3)  # TODO
-        if "index.php" not in br.driver.current_url:  # seems, we are no longer on the search page
+        print("!!!!!", br.driver.current_url)
+        br.driver.implicitly_wait(SLEEP_TIMEOUT)  # TODO
+        print("!!!!!", br.driver.current_url)
+        if "index.php" not in br.driver.current_url:
+            # seems, we are no longer on the search page
             return
         choose_again = choose_link()
         if choose_again:
-            br.driver.implicitly_wait(3)  # TODO
+            br.driver.implicitly_wait(SLEEP_TIMEOUT)  # TODO
             choose_link()
 
     def scientist_info(self, scientist: str):
@@ -107,7 +115,7 @@ class Robot:
                 born_span = br.driver.find_element(By.XPATH, '//table/tbody/tr/th[text()="Born"]/../td/span')
                 born = born_span.find_element(By.CLASS_NAME, 'bday')
                 br.driver.execute_script("arguments[0].style = '';", born_span)  # remove display:none
-                return datetime.datetime.strptime(born.text, "%Y-%M-%d").date()
+                return datetime.datetime.strptime(born.text, "%Y-%m-%d").date()
 
             def get_ddate() -> Optional[datetime.date]:
                 died_spans = br.driver.find_elements(By.XPATH, '//table/tbody/tr/th[text()="Died"]/../td/span')
@@ -116,17 +124,17 @@ class Robot:
                 assert len(died_spans) == 1
                 died = died_spans[0]
                 br.driver.execute_script("arguments[0].style = '';", died)  # remove display:none
-                return datetime.datetime.strptime(died.text, "(%Y-%M-%d)").date()
+                return datetime.datetime.strptime(died.text, "(%Y-%m-%d)").date()
 
             def get_age(date1: datetime.date, date2: Optional[datetime.date]) -> int:
                 if date2 is None:
                     date2 = datetime.datetime.now().date()
-                age = date2.year - date1.year - 1
-                # whether birthday already was:
-                months = date1.month < date2.month
-                days = date2.month == date1.month and date1.day <= date2.day
+                age = date2.year - date1.year
+                # whether birthday wasnt:
+                months = date2.month < date1.month
+                days = date2.month == date1.month and date2.day < date1.day
                 if months or days:
-                    age += 1
+                    age -= 1
                 if age > 125:
                     raise RuntimeError("Impossible")
                 return age
