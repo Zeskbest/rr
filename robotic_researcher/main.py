@@ -6,19 +6,27 @@ from .robotics import Robot, CannotFind
 from .ui import cmd, validate_scientist_arg, FLAG
 
 
-@click.command(help='I am here to provide information about scientists:')
-@click.option(f'--scientist', prompt=f'Enter a scientist name or "{FLAG}" to choose from the known ones',
-              help='Name of the scientist', default=FLAG)
-@click.option('--number', type=int, help='Scientist number', callback=validate_scientist_arg)
+@click.command(help="provides information about scientists")
+@click.option(
+    f"--scientist",
+    prompt=f'Enter a scientist "Name Surname" or leave empty to choose from the known ones',
+    help="Full Name of the scientist",
+    default=FLAG,
+    show_default=False,
+)
+@click.option("--number", type=int, help="scientist number from the known ones", callback=validate_scientist_arg)
 def main(scientist: str, number: Optional[int]):
-    robot = Robot("Quandrinaut")
+    robot = Robot()
     robot.say_hello()
     try:
         scientist = cmd(scientist, number)
         robot.say_wait()
         robot.scientist_info(scientist)
     except CannotFind as exc:
-        print('Try fulfilling both the Name and the Surname next time')
+        print(
+            f'\nSorry, I can not find the scientist "{exc.args[0]}".\n'
+            "Try to correct name and/or fulfil both the Name and the Surname next time"
+        )
     finally:
         robot.say_goodbye()
 
