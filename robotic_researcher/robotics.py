@@ -1,6 +1,6 @@
 import atexit
 import datetime
-from typing import List, Callable
+from typing import List, Callable, Optional
 
 import click
 from RPA.Browser.Selenium import Selenium
@@ -33,7 +33,7 @@ class Robot:
             raise WayFailed
         element = br.driver.find_element(By.XPATH, "/html/body/div[2]/div/div[3]/main/header/h1/span")  # page name
         if scientist not in element.text:
-            if click.prompt(f'Are you looking for "{element.text}"?', type=bool, default='n'):
+            if click.prompt(f'Are you looking for this web page "{element.text}"?', type=bool, default='n'):
                 return
             raise WayFailed
 
@@ -97,28 +97,42 @@ class Robot:
 
         def print_data():
             def get_bdate() -> datetime.date:
-                born_tr = br.driver.find_element(By.XPATH, '//table/tbody/tr/th[text()="Born"]/..')
-                born = born_tr.find_element(By.CLASS_NAME, 'bday')
-                return datetime.datetime.strptime(born.text, "%Y-%M-%d").date()  # 1952-10-07
+                born_span = br.driver.find_element(By.XPATH, '//table/tbody/tr/th[text()="Born"]/../td/span')
+                born = born_span.find_element(By.CLASS_NAME, 'bday')
+                br.driver.execute_script("arguments[0].style = '';", born_span)  # remove display:none
+                return datetime.datetime.strptime(born.text, "%Y-%M-%d").date()
 
-            def get_age(dt: datetime.date) -> int:
-                now = datetime.datetime.now().date()
-                age = now.year - dt.year - 1
+            def get_ddate() -> Optional[datetime.date]:
+                died_spans = br.driver.find_elements(By.XPATH, '//table/tbody/tr/th[text()="Died"]/../td/span')
+                if not died_spans:
+                    return None
+                assert len(died_spans) == 1
+                died = died_spans[0]
+                br.driver.execute_script("arguments[0].style = '';", died)  # remove display:none
+                return datetime.datetime.strptime(died.text, "(%Y-%M-%d)").date()
+
+            def get_age(date1: datetime.date, date2: Optional[datetime.date]) -> int:
+                if date2 is None:
+                    date2 = datetime.datetime.now().date()
+                age = date2.year - date1.year - 1
                 # whether birthday already was:
-                months = dt.month < now.month
-                days = now.month == dt.month and dt.day <= now.day
+                months = date1.month < date2.month
+                days = date2.month == date1.month and date1.day <= date2.day
                 if months or days:
                     age += 1
+                if age > 125:
+                    raise RuntimeError("Impossible")
                 return age
 
             def get_first_paragraph() -> str:
                 path = "//div[@class='mw-parser-output']/h2[1]/preceding-sibling::p"
-                first_p = br.driver.find_element(By.XPATH, path)
-                return first_p.text
+                first_ps = br.driver.find_elements(By.XPATH, path)
+                return "Article" + "\n\n".join((p.text for p in first_ps))
 
             bdate = get_bdate()
-            age = get_age(bdate)
-            click.prompt(f"His age is now {age} years", default="ok")
+            ddate = get_ddate()
+            age = get_age(bdate, ddate)
+            click.prompt(f"His age is {age} years", default="ok")
 
             text = get_first_paragraph()
             click.echo_via_pager(text)
