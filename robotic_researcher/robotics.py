@@ -1,4 +1,3 @@
-import atexit
 import datetime
 from typing import List, Callable, Optional, Iterable
 
@@ -6,8 +5,7 @@ import click
 from RPA.Browser.Selenium import Selenium
 from selenium.webdriver.common.by import By
 
-br = Selenium(auto_close=True)
-atexit.register(br.close_all_browsers)
+br = Selenium()
 
 
 class WayFailed(Exception):
@@ -64,6 +62,8 @@ class Robot:
             search_results = br.driver.find_elements(By.XPATH,
                                                      '//*[@id="mw-content-text"]/div/div[2]/ul/li/table/tbody/tr/td[2]/div[1]/a')
             links = wiki_advice + search_results
+            if not links:
+                raise CannotFind(scientist_name)
 
             def validator(x: str):
                 if not x.isdigit():
@@ -72,7 +72,7 @@ class Robot:
                     raise click.BadParameter(f"should be between [1, {len(links)}]")
                 return int(x)
 
-            choice = "\n".join([f"{num + 1}) {link.text}" for num, link in enumerate(links)] + ["0) :exit"])
+            choice = "\n".join([f"{num + 1}) {link.text}" for num, link in enumerate(links)] + ["0) :exit:\n"])
             num = click.prompt(f"Which of the following do you choose?\n{choice}", type=int, value_proc=validator)
             if num == 0:
                 raise CannotFind(scientist_name)
@@ -141,9 +141,10 @@ class Robot:
             bdate = get_bdate()
             ddate = get_ddate()
             age = get_age(bdate, ddate)
-            click.prompt(f"His age is {age} years", default="ok")
+            print(f"\n\nHis age is {age} years")
 
             text = get_first_paragraph()
+            click.prompt("To read article press Enter", default="ok", show_default=False)
             click.echo_via_pager(text)
 
         find_page()
